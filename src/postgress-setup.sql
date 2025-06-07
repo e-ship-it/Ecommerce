@@ -83,6 +83,7 @@ ingestion=# GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE streams.order_products
 ingestion=# GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE batch.aisles TO developer;
 ingestion=# GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE batch.departments TO developer;
 ingestion=# GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE batch.products TO developer;
+ingestion=# GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE batch.users TO developer; 
 --ingestion=# GRANT SELECT ON ALL TABLES IN SCHEMA batch TO DEVELOPER;
 --ingestion=# GRANT SELECT ON ALL TABLES IN SCHEMA streams TO DEVELOPER;
 
@@ -105,9 +106,9 @@ SELECT
 \dp streams.orders
 
 
-ALTER TABLE streams.orders
-ALTER COLUMN order_id SET DATA TYPE BIGINT;
-ALTER TABLE streams.orders
-ALTER COLUMN order_hour_of_day SET DATA TYPE INT;
-ALTER TABLE streams.orders
-ADD COLUMN days_since_prior_order FLOAT;
+--ALTER TABLE streams.orders
+--ALTER COLUMN order_id SET DATA TYPE BIGINT;
+--ALTER TABLE streams.orders
+--ALTER COLUMN order_hour_of_day SET DATA TYPE INT;
+--ALTER TABLE streams.orders
+--ADD COLUMN days_since_prior_order FLOAT;

@@ -2,8 +2,8 @@ import json, os
 import pandas as pd
 from pathlib import Path
 from datetime import datetime
-cwd_ = os.path.dirname(os.path.abspath(__file__))
-os.environ['KAGGLE_CONFIG_DIR'] = cwd_
+cwd_ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.environ['KAGGLE_CONFIG_DIR'] = os.path.dirname(os.path.abspath(__file__))
 
 from kaggle.api.kaggle_api_extended import KaggleApi
 
@@ -32,6 +32,7 @@ def downnload_kaggle_dataset(dataset_name,meta_file_name):
             local_meta = json.load(f)
             if local_meta.get("lastUpdated") == remote_updated_at:
                 need_download = False
+                print(f"No New Update to Downloads in {directory}")
 
     if need_download:
         print(meta_file)

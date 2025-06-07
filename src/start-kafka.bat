@@ -25,4 +25,10 @@ if %ERRORLEVEL% NEQ 0 (
     echo Kafka is not ready. Retrying...
     timeout /t 5
     goto KafkaWAIT
+) else (
+    if %ERRORLEVEL% EQU 1 (
+        start cmd /k "cd /d C:\kafka && bin\Windows\kafka-server-start config\server.properties"
+        timeout /t 5 
+        goto KafkaWAIT
+    )
 )

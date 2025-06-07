@@ -22,16 +22,17 @@ admin_client.close()
 # Start Zookeeper and Kafka
 
 try:
-    cwd_= os.path.dirname(os.path.abspath(__file__))
+    cwd_= os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     dataset_path = cwd_+ "/dataset/bittlingmayer/amazonreviews/orders.csv"
     if os.path.exists(dataset_path):
         with open(dataset_path,'r') as f:
             lines = list(csv.DictReader(f))
-    if len(sys.argv)>2:
+    if sys.argv[1]:
         chunk_size = int(sys.argv[1])
     else:
         chunk_size = random.randint(1,50)
     random_records = random.sample(lines,chunk_size)
+    print(chunk_size,len(random_records))
     producer = KafkaProducer(
         bootstrap_servers = ["localhost:9092"],
         value_serializer = lambda v: json.dumps(v).encode("utf-8"),

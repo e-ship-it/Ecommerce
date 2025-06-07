@@ -27,7 +27,7 @@ def generate_user_data(user_id):
 
 
 try: 
-    cwd_ = os.path.dirname(os.path.abspath(__file__))
+    cwd_ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     output_file = cwd_ + "/dataset/bittlingmayer/amazonreviews/users.csv"
 
     with open(output_file,newline='',mode = 'w') as f:
