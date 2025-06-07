@@ -1,0 +1,16 @@
+# Ignore Python virtual environment folder
+venv/
+dataset/
+
+
+# Ignore environment variable files
+.env
+*.env
+src/kaggle.json
+src/recover_blobs.sh
+pyvenv.cfg
+
+
+# Ignore compiled Python files
+__pycache__/
+*.pyc
