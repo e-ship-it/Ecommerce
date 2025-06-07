@@ -1,7 +1,7 @@
 # Ignore Python virtual environment folder
 venv/
 dataset/
-
+orders_Stream_Error_Files/
 
 # Ignore environment variable files
 .env

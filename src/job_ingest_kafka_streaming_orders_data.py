@@ -5,6 +5,13 @@ import psycopg2, os, json, csv, time, traceback
 from pathlib import Path
 from kafka.admin import KafkaAdminClient
 from psycopg2.extras import execute_batch
+from datetime import datetime
+cwd_ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+def make_output_directory(error_folder):
+    directory = cwd_+ "/" + error_folder + "/" 
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
 def empty_str_to_null(value):
     if value =="" or value is None:
@@ -25,6 +32,14 @@ def load_data_from_kafka_into_postgres(data,cursor,connection):
     except Exception as e:
         print(f"Error inserting data: {e}")
         connection.rollback()
+        current_time = datetime.now().strftime("%H%m%d_%H%M%S")
+        error_folder = 'orders_Stream_Error_Files'
+        make_output_directory(error_folder)
+        error_filepath = cwd_ + f'/orders_Stream_Error_Files/error_file_{current_time}.json'
+        with open(error_filepath,'w') as f:
+            json.dump(values_to_insert,f)
+        print(f"Error File created :{error_filepath} ")
+
 
 def read_from_postgres(cursor):
     cursor.execute("SELECT * FROM streams.orders")
@@ -33,10 +48,9 @@ def read_from_postgres(cursor):
 
 try:
     admin_client = KafkaAdminClient()
-    print(admin_client.list_topics())
+    print(f" Existing topics: {admin_client.list_topics()}")
 
     # Step 1: Load environment variables from .env file
-    cwd_ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     load_dotenv(dotenv_path = cwd_ + '/.env')
     # Step 2: Get the connection parameters from the environment
     db_name = os.getenv("DB_NAME")
@@ -92,6 +106,6 @@ try:
 except Exception:
     traceback.print_exc()
 finally:
-    consumer.close()
     cursor.close()
-    connection.close()    
+    connection.close()
+    #consumer.close() 
