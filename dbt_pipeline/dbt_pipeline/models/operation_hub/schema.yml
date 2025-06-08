@@ -1,0 +1,111 @@
+version: 2
+
+models:
+  - name: transform_hub_user
+    description: "This model transforms and refines the raw Hub_User data into a usable format."
+    columns:
+      - name: user_id
+        description: "Unique identifier for the user."
+        tests:
+          - not_null
+          - unique
+      - name: user_name
+        description: "User's full name."
+      - name: email
+        description: "User's email address."
+        tests:
+          - not_null
+      - name: signup_date
+        description: "The date the user signed up."
+      - name: location
+        description: "User's geographical location."
+
+  - name: transform_hub_product
+    description: "This model transforms and refines the raw Hub_Product data into a usable format."
+    columns:
+      - name: product_id
+        description: "Unique identifier for the product."
+        tests:
+          - not_null
+          - unique
+      - name: product_name
+        description: "Name of the product."
+      - name: aisle_id
+        description: "Aisle where the product is located."
+      - name: department_id
+        description: "Department to which the product belongs."
+
+  - name: transform_hub_order
+    description: "This model transforms and refines the raw Hub_Order data into a usable format."
+    columns:
+      - name: order_id
+        description: "Unique identifier for the order."
+        tests:
+          - not_null
+          - unique
+      - name: order_status
+        description: "Current status of the order."
+      - name: total_amount
+        description: "Total amount of the order."
+      
+  - name: transform_link_order_product
+    description: "This model refines the relationship between orders and products in the Link_Order_Product table."
+    columns:
+      - name: order_id
+        description: "Unique identifier for the order."
+        tests:
+          - not_null
+      - name: product_id
+        description: "Unique identifier for the product."
+        tests:
+          - not_null
+      - name: add_to_cart_order
+        description: "Order in which the product was added to the cart."
+      - name: reordered
+        description: "Indicates if the product was reordered."
+      
+  - name: transform_satellite_user
+    description: "This model transforms and refines the Satellite_User data."
+    columns:
+      - name: user_id
+        description: "Unique identifier for the user."
+        tests:
+          - not_null
+      - name: user_name
+        description: "Full name of the user."
+      - name: email
+        description: "Email address of the user."
+        tests:
+          - not_null
+      - name: signup_date
+        description: "Date the user signed up."
+      - name: location
+        description: "User's geographical location."
+
+  - name: transform_satellite_product
+    description: "This model transforms and refines the Satellite_Product data."
+    columns:
+      - name: product_id
+        description: "Unique identifier for the product."
+        tests:
+          - not_null
+      - name: product_name
+        description: "Name of the product."
+      - name: price
+        description: "Price of the product."
+
+  - name: transform_satellite_order
+    description: "This model transforms and refines the Satellite_Order data."
+    columns:
+      - name: order_id
+        description: "Unique identifier for the order."
+        tests:
+          - not_null
+      - name: user_id
+        description: "Unique identifier for the user."
+        tests:
+          - not_null
+      - name: order_status
+        description: "Current status of the order."
+      - name: total_amount
+        description: "Total amount for the order."

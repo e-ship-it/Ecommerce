@@ -1,0 +1,51 @@
+version: 2
+
+models:
+  - name: hub_users
+    description: "This model extracts unique user data from the batch.users table."
+    columns:
+      - name: user_hkey
+        description: "Unique Hash key againt user_id"
+        tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: "Unique identifier for the user."
+        tests:
+          - not_null
+          - unique
+      - name: load_timestamp
+        description: "Timestamp of when this record was loaded."
+      - name: record_source
+        description: "The source from which the data originated."
+
+
+  - name: satellite_user
+    description: "This model extracts contextual user data from the Satellite_User table."
+    columns:
+      - name: user_hkey
+        description: "Unique identifier for the user."
+        tests:
+          - not_null
+      - name: user_name
+        description: "Full name of the user."
+      - name: email
+        description: "Email address of the user."
+        tests:
+          - not_null
+      - name: birthdate
+        description: "User DOB"
+      - name: registration_date
+        description: "Date when the user signed up."
+      - name: address      
+        description: "Geographical location of the user."
+      - name: phone_number
+        description: "phone_number of the user."        
+      - name: created_at
+        description: "Timestamp of when this record was loaded."
+      - name: updated_at
+        description: "Timestamp of when this record was updated."
+      - name: record_status
+        description: "mark record as active or inactive"        
+      - name: end_date
+        description: "Set end_date for old records"

@@ -7,7 +7,7 @@ postgres=# CREATE DATABASE INGESTION;
 postgres=# GRANT CONNECT ON DATABASE INGESTION TO DEVELOPER;
 postgres=# GRANT USAGE ON SCHEMA PUBLIC TO DEVELOPER;
 
-postgres=# CREATE SCHEMA "STREAMING DATA"; 
+
 -- postgres=# GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA PUBLIC TO DEVELOPER;
 -- postgres=# GRANT SELECT,INSERT,UPDATE,DELETE ON TABLE <schema.table> TO DEVELOPER;
 
@@ -21,8 +21,16 @@ postgres=# \dn -- To list down schema Name (here in postgres Schema = namespace 
 postgres=# \c ingestion; --connect to db (only one connect per session)
 ingestion=# CREATE SCHEMA streams; --CREATE SCHEMA for db
 ingestion=# CREATE SCHEMA batch;
+postgres=# CREATE SCHEMA opts_hub;
+postgres=# CREATE SCHEMA mart;
+postgres=# CREATE SCHEMA staging;
 postgres=# GRANT USAGE ON SCHEMA streams TO DEVELOPER;
 postgres=# GRANT USAGE ON SCHEMA batch TO DEVELOPER;
+postgres=# GRANT USAGE ON SCHEMA opts_hub TO DEVELOPER;
+postgres=# GRANT USAGE ON SCHEMA mart TO DEVELOPER;
+postgres=# GRANT USAGE ON SCHEMA staging TO DEVELOPER;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA staging TO DEVELOPER;
+
 -- Tables Created
 
 CREATE TABLE batch.users (
