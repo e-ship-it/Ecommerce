@@ -51,7 +51,7 @@ try:
     #read csv File to load into the db
     filePath = cwd_+"/dataset/bittlingmayer/amazonreviews/users.csv"
     print(f"Start reading file : {filePath}")
-    #read_csv_file(filePath,cursor,connection)
+    read_csv_file(filePath,cursor,connection)
     print(f"End reading file : {filePath}")
     cursor.execute("SELECT COUNT(*) FROM batch.users;")
     print(f"Record count in users table: {cursor.fetchall()}")

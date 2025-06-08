@@ -27,7 +27,7 @@ try:
     if os.path.exists(dataset_path):
         with open(dataset_path,'r') as f:
             lines = list(csv.DictReader(f))
-    if sys.argv[1]:
+    if len(sys.argv)>1:
         chunk_size = int(sys.argv[1])
     else:
         chunk_size = random.randint(1,50)

@@ -32,17 +32,23 @@ CREATE TABLE batch.users (
     birthdate DATE,                                   -- User's birthdate
     registration_date DATE,                           -- User's registration date
     address TEXT,                                     -- User's address (can be longer than VARCHAR)
-    phone_number VARCHAR(50)                         -- User's phone number (supports format with extensions)
+    phone_number VARCHAR(50),                         -- User's phone number (supports format with extensions)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Created timestamp, auto set to current time
+    updated_at TIMESTAMP
 );
 
 CREATE TABLE batch.aisles (
     aisle_id INT PRIMARY KEY,  
-    aisle TEXT NOT NULL
+    aisle TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Created timestamp, auto set to current time
+    updated_at TIMESTAMP
 );
 
 CREATE TABLE batch.departments (
     department_id INT PRIMARY KEY,  
-    department TEXT NOT NULL 
+    department TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Created timestamp, auto set to current time
+    updated_at TIMESTAMP
 );
 
 CREATE TABLE batch.products (
@@ -50,6 +56,8 @@ CREATE TABLE batch.products (
     product_name TEXT NOT NULL,            -- Name of the product
     aisle_id INT,                          -- Foreign key referencing aisles
     department_id INT,                     -- Foreign key referencing departments
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Created timestamp, auto set to current time
+    updated_at TIMESTAMP,
     CONSTRAINT fk_aisles FOREIGN KEY (aisle_id) REFERENCES batch.aisles(aisle_id),
     CONSTRAINT fk_departments FOREIGN KEY (department_id) REFERENCES batch.departments(department_id)
 );
@@ -62,14 +70,18 @@ order_number INT, -- Order number for a user
 order_dow INT, -- Hour of the day as FLOAT
 order_hour_of_day INT CHECK(order_hour_of_day >= 0 AND order_hour_of_day < 24), -- Days since the prior order,
 days_since_prior_order FLOAT,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Created timestamp, auto set to current time
+updated_at TIMESTAMP,
 CONSTRAINT fk_users FOREIGN KEY (user_id) REFERENCES batch.users (user_id)  ON DELETE CASCADE
 );
 
-CREATE TABLE streams.order_products (
+CREATE TABLE streams.user_order_activity_stream (
     order_id INT, 
     product_id INT, 
     add_to_cart_order INT,               -- Position in the cart
     reordered INT,                        -- Whether the product was reordered (1 for yes, 0 for no)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Created timestamp, auto set to current time
+    updated_at TIMESTAMP,
     CONSTRAINT fk_order FOREIGN KEY (order_id) REFERENCES streams.orders(order_id),
     CONSTRAINT fk_product FOREIGN KEY (product_id) REFERENCES batch.products(product_id)
 );
@@ -79,7 +91,7 @@ ingestion=# \dt batch.*
 ingestion=# \dt streams.*
 
 ingestion=# GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE streams.orders TO developer;
-ingestion=# GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE streams.order_products TO developer;
+ingestion=# GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE streams.user_order_activity_stream TO developer;
 ingestion=# GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE batch.aisles TO developer;
 ingestion=# GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE batch.departments TO developer;
 ingestion=# GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE batch.products TO developer;
@@ -88,6 +100,12 @@ ingestion=# GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE batch.users TO develop
 --ingestion=# GRANT SELECT ON ALL TABLES IN SCHEMA streams TO DEVELOPER;
 
 --To disconnect from the current session in psql, use the \q command:
+
+--Added Audit columns for STAGING
+--ALTER TABLE batch.users
+--ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+--ALTER TABLE batch.users
+--ADD COLUMN updated_at TIMESTAMP ;
 
 
 SELECT * FROM information_schema.columns WHERE table_name = 'orders';
@@ -105,7 +123,7 @@ SELECT
 --You can verify the permissions granted to the user with:
 \dp streams.orders
 
-
+--ALTER TABLE streams.order_products RENAME TO user_order_activity_stream
 --ALTER TABLE streams.orders
 --ALTER COLUMN order_id SET DATA TYPE BIGINT;
 --ALTER TABLE streams.orders

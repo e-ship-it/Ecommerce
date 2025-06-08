@@ -20,13 +20,12 @@ def empty_str_to_null(value):
         return value
 
 def load_data_from_kafka_into_postgres(data,cursor,connection):
-    values_to_insert = [(d['order_id'],d['user_id'],d['eval_set'],empty_str_to_null(d['order_number']),empty_str_to_null(d['order_dow']),
-    empty_str_to_null(d['order_hour_of_day']),empty_str_to_null(d['days_since_prior_order']))
+    values_to_insert = [(d['order_id'],d['product_id'],empty_str_to_null(d['add_to_cart_order']),empty_str_to_null(d['reordered']))
     for d in data]
     print(values_to_insert)
     insert_query = """
-    INSERT INTO streams.orders (order_id,user_id,eval_set,order_number,order_dow,order_hour_of_day,days_since_prior_order)
-    VALUES (%s, %s, %s, %s, %s, %s, %s)
+    INSERT INTO streams.user_order_activity_stream (order_id,product_id,add_to_cart_order,reordered)
+    VALUES (%s, %s, %s, %s)
     """
     try:
         execute_batch(cursor,insert_query,values_to_insert)
@@ -35,7 +34,7 @@ def load_data_from_kafka_into_postgres(data,cursor,connection):
         print(f"Error inserting data: {e}")
         connection.rollback()
         current_time = datetime.now().strftime("%H%m%d_%H%M%S")
-        error_folder = 'orders_Stream_Error_Files'
+        error_folder = 'user_order_activity_stream_Error_Files'
         make_output_directory(error_folder)
         error_filepath = cwd_ + f'/orders_Stream_Error_Files/error_file_{current_time}.json'
         with open(error_filepath,'w') as f:
@@ -44,7 +43,7 @@ def load_data_from_kafka_into_postgres(data,cursor,connection):
 
 
 def read_from_postgres(cursor):
-    cursor.execute("SELECT * FROM streams.orders")
+    cursor.execute("SELECT * FROM streams.user_order_activity_stream")
     print(f"Record Count in table After Insertion: {(len(cursor.fetchall()))}")
 
 
@@ -76,12 +75,12 @@ try:
 
 
     consumer = KafkaConsumer(
-        "orders",
+        "user_order_activity_stream",
         bootstrap_servers = ['localhost:9092'],
-        #auto_offset_reset='earliest',  # Start from the earliest message (default: 'latest')
-        group_id='orders-group', #mandate
+        auto_offset_reset='earliest',  # Start from the earliest message (default: 'latest')
+        group_id='user_order_activity-group', #mandate
         value_deserializer = lambda v: json.loads(v.decode('utf-8')),
-        enable_auto_commit = True # Kafka commits the offset automatically after a message is read: don’t read it again
+        enable_auto_commit = False # Kafka commits the offset automatically after a message is read: don’t read it again
     )
     #To Reset the offset manually, in order to read commited messages
     #kafka-consumer-groups.sh --bootstrap-server localhost:9092 --group your-consumer-group --reset-offsets --to-earliest --execute --topic orders

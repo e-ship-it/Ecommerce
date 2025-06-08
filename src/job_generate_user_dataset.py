@@ -3,6 +3,8 @@ from datetime import datetime as dt
 from faker import Faker
 from dotenv import load_dotenv
 from pathlib import Path
+#Global Object
+fake = Faker()
 
 def generate_email(first_name,last_name):
     #input : first_name (Str): First Name of the User
@@ -10,12 +12,11 @@ def generate_email(first_name,last_name):
     #return : str: generated email id
 
     random_num = random.randint(1000, 9999)
-    return f"{first_name}.{last_name}_{random_num}@example.com"
+    return f"{first_name}.{last_name}.{fake.uuid4().split("-")[1]}_{random_num}@example.com"
 
 def generate_user_data(user_id):
     # input: user_id(int) : USER ID for which the data is to be generated
     # return : list of values generated against the id
-    fake = Faker()
 
     name = fake.name()
     email = generate_email(name.split()[0],name.split()[1])

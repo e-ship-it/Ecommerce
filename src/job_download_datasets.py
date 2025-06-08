@@ -42,7 +42,7 @@ def downnload_kaggle_dataset(dataset_name,meta_file_name):
         kg.dataset_download_files(dataset = "yasserh/instacart-online-grocery-basket-analysis-dataset", path= directory, unzip=True)
 
 #Reading the datasets
-downnload_kaggle_dataset("instacart-online-grocery-basket-analysis-dataset","instacart_meta_file.json")
+#downnload_kaggle_dataset("instacart-online-grocery-basket-analysis-dataset","instacart_meta_file.json")
 downnload_kaggle_dataset("bittlingmayer/amazonreviews","amazonreviews_meta_file.json")
 #downnload_kaggle_dataset("retailrocket/ecommerce-dataset","retailrocket_meta_file.json")
 
