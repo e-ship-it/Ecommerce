@@ -36,7 +36,7 @@ def load_data_from_kafka_into_postgres(data,cursor,connection):
         current_time = datetime.now().strftime("%H%m%d_%H%M%S")
         error_folder = 'user_order_activity_stream_Error_Files'
         make_output_directory(error_folder)
-        error_filepath = cwd_ + f'/orders_Stream_Error_Files/error_file_{current_time}.json'
+        error_filepath = cwd_ + f'/user_order_activity_stream_Error_Files/error_file_{current_time}.json'
         with open(error_filepath,'w') as f:
             json.dump(values_to_insert,f)
         print(f"Error File created :{error_filepath} ")
@@ -80,7 +80,7 @@ try:
         auto_offset_reset='earliest',  # Start from the earliest message (default: 'latest')
         group_id='user_order_activity-group', #mandate
         value_deserializer = lambda v: json.loads(v.decode('utf-8')),
-        enable_auto_commit = False # Kafka commits the offset automatically after a message is read: don’t read it again
+        enable_auto_commit = True # Kafka commits the offset automatically after a message is read: don’t read it again
     )
     #To Reset the offset manually, in order to read commited messages
     #kafka-consumer-groups.sh --bootstrap-server localhost:9092 --group your-consumer-group --reset-offsets --to-earliest --execute --topic orders

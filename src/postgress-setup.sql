@@ -82,9 +82,12 @@ CREATE TABLE streams.user_order_activity_stream (
     reordered INT,                        -- Whether the product was reordered (1 for yes, 0 for no)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Created timestamp, auto set to current time
     updated_at TIMESTAMP,
+    CONSTRAINT pk_uoas PRIMARY KEY (order_id,product_id),
     CONSTRAINT fk_order FOREIGN KEY (order_id) REFERENCES streams.orders(order_id),
     CONSTRAINT fk_product FOREIGN KEY (product_id) REFERENCES batch.products(product_id)
 );
+--ALTER TABLE streams.user_order_activity_stream
+--ADD CONSTRAINT pk_uoas PRIMARY KEY (order_id,product_id);
 
 -- Check the tables created
 ingestion=# \dt batch.*
