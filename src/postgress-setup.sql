@@ -1,12 +1,19 @@
 psql --version;
 psql -U postgres
-postgres=# CREATE USER DEVELOPER WITH PASSWORD 'devTeam';
+postgres=# CREATE USER DEVELOPER WITH PASSWORD 'my_password';
 postgres=# \du -- To list all the users
 postgres=# SELECT * FROM pg_roles WHERE UPPER(rolname) = 'DEVELOPER';
 postgres=# CREATE DATABASE INGESTION;
 postgres=# GRANT CONNECT ON DATABASE INGESTION TO DEVELOPER;
 postgres=# GRANT USAGE ON SCHEMA PUBLIC TO DEVELOPER;
+GRANT CONNECT ON DATABASE ingestion TO developer;
+GRANT CREATE ON DATABASE ingestion TO developer;
+GRANT TEMPORARY ON DATABASE ingestion TO developer;
 
+GRANT CONNECT ON DATABASE ingestion TO developer;
+GRANT CREATE ON DATABASE ingestion TO developer;
+GRANT TEMPORARY ON DATABASE ingestion TO developer;
+SELECT current_user;
 
 -- postgres=# GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA PUBLIC TO DEVELOPER;
 -- postgres=# GRANT SELECT,INSERT,UPDATE,DELETE ON TABLE <schema.table> TO DEVELOPER;
@@ -24,12 +31,14 @@ ingestion=# CREATE SCHEMA batch;
 postgres=# CREATE SCHEMA opts_hub;
 postgres=# CREATE SCHEMA mart;
 postgres=# CREATE SCHEMA staging;
-postgres=# GRANT USAGE ON SCHEMA streams TO DEVELOPER;
-postgres=# GRANT USAGE ON SCHEMA batch TO DEVELOPER;
-postgres=# GRANT USAGE ON SCHEMA opts_hub TO DEVELOPER;
-postgres=# GRANT USAGE ON SCHEMA mart TO DEVELOPER;
-postgres=# GRANT USAGE ON SCHEMA staging TO DEVELOPER;
+GRANT USAGE ON SCHEMA streams TO DEVELOPER;
+GRANT USAGE ON SCHEMA batch TO DEVELOPER;
+GRANT USAGE ON SCHEMA opts_hub TO DEVELOPER;
+GRANT USAGE ON SCHEMA mart TO DEVELOPER;
+GRANT USAGE ON SCHEMA staging TO DEVELOPER;
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA staging TO DEVELOPER;
+GRANT USAGE ON SCHEMA public TO DEVELOPER;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO DEVELOPER;
 
 -- Tables Created
 
@@ -141,3 +150,20 @@ SELECT
 --ALTER COLUMN order_hour_of_day SET DATA TYPE INT;
 --ALTER TABLE streams.orders
 --ADD COLUMN days_since_prior_order FLOAT;
+-- Does the user have usage on schema?
+SELECT n.nspname AS schema,
+       r.rolname AS role,
+       has_schema_privilege(r.rolname, n.nspname, 'USAGE') AS usage,
+       has_schema_privilege(r.rolname, n.nspname, 'CREATE') AS can_create
+FROM pg_namespace n
+JOIN pg_roles r ON r.rolname = 'developer'
+WHERE n.nspname IN ('batch', 'staging', 'streams');
+
+-- Grant CREATE privileges so dbt can write to these schemas:
+GRANT CREATE ON SCHEMA batch TO developer;
+GRANT CREATE ON SCHEMA staging TO developer;
+GRANT CREATE ON SCHEMA streams TO developer;
+
+GRANT INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA batch TO developer;
+GRANT INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA staging TO developer;
+GRANT INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA streams TO developer;

@@ -16,11 +16,10 @@ try:
     password = os.getenv("DB_PASSWORD")
     host = os.getenv("DB_HOST")
     port = os.getenv("DB_PORT")
-    schema_batch = os.getenv("SCHEMA_BATCH")
-    schema_stream = os.getenv("SCHEMA_STREAM")
+    target_schema1 = os.getenv("TARGET_SCHEMA_1")
 
-    schema_list = {"DEV_SCHEMA1":schema_batch,"DEV_SCHEMA2":schema_stream}
-    target_setup = ["DEV_SCHEMA1","DEV_SCHEMA2"]
+    schema_list = {"TARGET_SCHEMA_1":target_schema1}
+    target_setup = ["TARGET_SCHEMA_1"]
 
     dbt_profile_dir = str(Path.home()) + "/.dbt/"
     check_directory(dbt_profile_dir)
@@ -43,6 +42,7 @@ try:
       port: {port}
       dbname: {dbname}
       schema: {schema_list[target]}
+      threads: 2
 """)
 
 

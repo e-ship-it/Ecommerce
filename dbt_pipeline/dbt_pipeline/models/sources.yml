@@ -3,16 +3,16 @@ version: 2
 sources:
   - name: batch
     database: ingestion
-    schema: batch  # This schema contains batch processing tables
+    schema: batch
     tables:
-      - name: aisles  # Table from the batch schema
+      - name: aisles
       - name: departments
       - name: products
-      - name: users 
+      - name: users
 
   - name: streams
     database: ingestion
-    schema: streams  # This schema contains streaming data tables
+    schema: streams
     tables:
-      - name: orders  # Table from the streams schema
+      - name: orders
       - name: user_order_activity_stream

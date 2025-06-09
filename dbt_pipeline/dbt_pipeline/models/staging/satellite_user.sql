@@ -1,10 +1,13 @@
 {{ config(
-    materialized='incremental',  -- Incremental load to only process new or updated records
-    unique_key='user_hkey',      -- The unique key to identify each record
-    incremental_strategy='merge',  -- Use merge strategy for inserts/updates
-    schema='staging'             -- Target schema for the satellite table
+    materialized='incremental',
+    unique_key='user_hkey',  
+    incremental_strategy='merge'    
 ) }}
 
+-- Incremental load to only process new or updated records
+-- The unique key to identify each record
+-- Using merge strategy for inserts/updates
+-- Target schema for the satellite table
 with source_data as (
     -- Step 1: Get new or updated records from the source (batch.users)
     select
@@ -21,12 +24,17 @@ with source_data as (
         TRIM(address) as address,
         TRIM(phone_number) as phone_number,
         created_at,
-        updated_at
+        updated_at,
+        current_timestamp as load_timestamp,
+        NULL::TIMESTAMP as end_date,
+        'ACTIVE' as record_status
     from {{ source('batch','users') }}  -- Reference source table
+    {% if is_incremental() %}
     where created_at > coalesce(
         (select max(created_at) from {{ this }}),  -- Compare with the last loaded timestamp
         '1900-01-01'::timestamp  -- Default date if the table is empty
     )
+    {% endif %}
 ),
 
 -- Step 2: Flag old records as inactive and insert updated ones
@@ -41,7 +49,6 @@ merge_data as (
         s.phone_number,
         s.created_at,
         s.updated_at,
-        s.load_timestamp,
         case
             when t.user_hkey is not null and s.diff_hkey <> t.diff_hkey then 'INACTIVE'  -- Flag old records as inactive
             else 'ACTIVE'  -- Mark new or unchanged records as active
