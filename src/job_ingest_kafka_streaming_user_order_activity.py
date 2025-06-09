@@ -34,9 +34,9 @@ def load_data_from_kafka_into_postgres(data,cursor,connection):
         print(f"Error inserting data: {e}")
         connection.rollback()
         current_time = datetime.now().strftime("%H%m%d_%H%M%S")
-        error_folder = 'user_order_activity_stream_Error_Files'
+        error_folder = 'error_files/user_order_activity_stream_Error_Files'
         make_output_directory(error_folder)
-        error_filepath = cwd_ + f'/user_order_activity_stream_Error_Files/error_file_{current_time}.json'
+        error_filepath = cwd_ + f'/error_files/user_order_activity_stream_Error_Files/error_file_{current_time}.json'
         with open(error_filepath,'w') as f:
             json.dump(values_to_insert,f)
         print(f"Error File created :{error_filepath} ")
