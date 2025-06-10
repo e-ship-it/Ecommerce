@@ -5,9 +5,9 @@
 
 with source_data as (
     select
-        md5(order_id::TEXT || product_id::TEXT) as order_product_hkey,  -- Surrogate key for the relationship
-        order_id,                                                    -- Business key from orders
-        product_id,                                                  -- Business key from products
+        md5(TRIM(order_id::TEXT) || TRIM(product_id::TEXT)) as order_product_hkey,  -- Surrogate key for the relationship
+        md5(TRIM(order_id::TEXT)) as order_hkey,                                                    -- Business key from orders
+        md5(TRIM(product_id::TEXT)) as product_hkey,                                                  -- Business key from products
         created_at as load_timestamp,                                -- Load timestamp
         'streams.user_order_activity_stream' as record_source        -- Source of the record
     from {{ source('streams', 'user_order_activity_stream') }}     -- Source table (user-product link)
@@ -22,8 +22,8 @@ with source_data as (
 
 select
     order_product_hkey,
-    order_id,
-    product_id,
+    order_hkey,
+    product_hkey,
     load_timestamp,
     record_source
 from source_data

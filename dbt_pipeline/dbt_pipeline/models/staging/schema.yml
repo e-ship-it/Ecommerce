@@ -39,81 +39,7 @@ models:
         description: "Source of the record (e.g., batch.products)"
         tests:
           - not_null        
-
-  - name: link_order_user
-    description: "Link table that stores the relationship between orders and users."
-    columns:
-      - name: user_order_hkey
-        description: "Surrogate key for the relationship between order and user"
-        tests:
-          - unique
-          - not_null
-      - name: order_id
-        description: "Business key for the order"
-        tests:
-          - not_null
-      - name: user_id
-        description: "Business key for the user"
-        tests:
-          - not_null
-      - name: load_timestamp
-        description: "Timestamp when the record was loaded"
-        tests:
-          - not_null
-      - name: record_source
-        description: "Source of the record (e.g., streams.orders)"
-        tests:
-          - not_null
-
-  - name: link_user_product
-    description: "Link table that stores the relationship between users and products in the user's orders."
-    columns:
-      - name: user_product_hkey
-        description: "Surrogate key for the relationship between user and product"
-        tests:
-          - unique
-          - not_null
-      - name: order_id
-        description: "Business key for the order"
-        tests:
-          - not_null
-      - name: product_id
-        description: "Business key for the product"
-        tests:
-          - not_null
-      - name: load_timestamp
-        description: "Timestamp when the record was loaded"
-        tests:
-          - not_null
-      - name: record_source
-        description: "Source of the record (e.g., streams.user_order_activity_stream)"
-        tests:
-          - not_null
-
-  - name: link_order_product
-    description: "Link table that stores the relationship between orders and products."
-    columns:
-      - name: order_product_hkey
-        description: "Surrogate key for the relationship between order and product"
-        tests:
-          - unique
-          - not_null
-      - name: order_id
-        description: "Business key for the order"
-        tests:
-          - not_null
-      - name: product_id
-        description: "Business key for the product"
-        tests:
-          - not_null
-      - name: load_timestamp
-        description: "Timestamp when the record was loaded"
-        tests:
-          - not_null
-      - name: record_source
-        description: "Source of the record (e.g., streams.user_order_activity_stream)"
-        tests:
-          - not_null          
+ 
 
   - name: hub_aisles
     description: "This model extracts unique user data from the batch.users table."
@@ -149,29 +75,90 @@ models:
       - name: load_timestamp
         description: "Timestamp of when this record was loaded."
       - name: record_source
-        description: "The source from which the data originated."        
+        description: "The source from which the data originated."               
 
-  - name: link_aisle_department
-    description: "Link table that stores the relationship between users and products in the user's orders."
+  - name: link_order_product
+    description: "This model captures the relationship between orders and products, tracking the unique pairing and associated metadata."
+    materialized: incremental
+    unique_key: order_product_hkey
     columns:
-      - name: aisle_department_hkey
-        description: "Surrogate key for the relationship between user and product"
+      - name: order_product_hkey
+        description: "A surrogate key for the relationship between order and product."
         tests:
+          - not_null
           - unique
-          - not_null
-      - name: aisle_id
-        description: "Business key for the aisle"
+      - name: order_hkey
+        description: "Business key for the order, derived from the order_id."
         tests:
           - not_null
-      - name: department_id
-        description: "Business key for the department"
+      - name: product_hkey
+        description: "Business key for the product, derived from product_id."
         tests:
           - not_null
       - name: load_timestamp
-        description: "Timestamp when the record was loaded"
+        description: "Timestamp when the record was loaded or updated."
         tests:
           - not_null
       - name: record_source
-        description: "Source of the record (e.g., streams.user_order_activity_stream)"
+        description: "The source from which the record was pulled (e.g., 'streams.user_order_activity_stream')."
         tests:
-          - not_null        
+          - not_null
+
+  - name: link_aisle_department_product
+    description: "This model represents the relationship between users, products, aisles, and departments based on user-product interaction data."
+    materialized: incremental
+    unique_key: aisle_department_product_hkey
+    columns:
+      - name: aisle_department_product_hkey
+        description: "A surrogate hash key for the relationship between aisle, department, and product."
+        tests:
+          - not_null
+          - unique
+      - name: product_hkey
+        description: "Business key for the product, derived from product_id."
+        tests:
+          - not_null
+      - name: aisle_hkey
+        description: "Business key for the aisle, derived from aisle_id."
+        tests:
+          - not_null
+      - name: department_hkey
+        description: "Business key for the department, derived from department_id."
+        tests:
+          - not_null
+      - name: load_timestamp
+        description: "Timestamp when the record was loaded or updated."
+        tests:
+          - not_null
+      - name: record_source
+        description: "The source from which the record was pulled (e.g., 'batch.products')."
+        tests:
+          - not_null
+
+
+  - name: link_order_user
+    description: "This model represents the relationship between users and orders, linking user details to their order history."
+    materialized: incremental
+    unique_key: user_order_hkey
+    columns:
+      - name: user_order_hkey
+        description: "A surrogate hash key for the relationship between user and order."
+        tests:
+          - not_null
+          - unique
+      - name: order_hkey
+        description: "Business key for the order, derived from order_id."
+        tests:
+          - not_null
+      - name: user_hkey
+        description: "Business key for the user, derived from user_id."
+        tests:
+          - not_null
+      - name: load_timestamp
+        description: "Timestamp when the record was loaded or updated."
+        tests:
+          - not_null
+      - name: record_source
+        description: "The source from which the record was pulled (e.g., 'streams.orders')."
+        tests:
+          - not_null          

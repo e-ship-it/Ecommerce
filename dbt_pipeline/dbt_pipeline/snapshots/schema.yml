@@ -26,3 +26,103 @@ models:
         description: "Timestamp of when this record was loaded."
       - name: updated_at
         description: "Timestamp of when this record was updated."
+
+  - name: satellite_order_user_order_activity_stream
+    description: "This snapshot tracks historical changes for order-related fields like order_number, order_dow, and days_since_prior_order."
+    unique_key: order_product_hkey
+    strategy: check
+    check_cols:
+      - add_to_cart_order
+      - reordered
+    columns:
+      - name: order_product_hkey
+        description: "A surrogate hash key for identifying unique order records across order_id and product_id."
+        tests:
+          - not_null
+          - unique
+      - name: add_to_cart_order
+        description: "The order in which the product was added to the cart."
+        tests:
+          - not_null
+      - name: reordered
+        description: "Indicates whether the product was reordered."
+        tests:
+          - not_null
+      - name: created_at
+        description: "Timestamp when the order record was created."
+        tests:
+          - not_null
+      - name: updated_at
+        description: "Timestamp when the order record was last updated."
+        tests:
+          - not_null
+
+  - name: satellite_order
+    description: "This snapshot tracks historical changes for order-related fields like order_number, order_dow, and days_since_prior_order."
+    unique_key: user_order_hkey
+    strategy: check
+    check_cols:
+      - eval_set
+      - order_number
+      - order_dow
+      - order_hour_of_day
+      - days_since_prior_order
+    columns:
+      - name: user_order_hkey
+        description: "A surrogate hash key for identifying unique order records across order_id and user_id."
+        tests:
+          - not_null
+          - unique
+      - name: eval_set
+        description: "The evaluation set the order belongs to (e.g., training, validation, etc.)."
+        tests:
+          - not_null
+      - name: order_number
+        description: "Unique identifier for the order."
+        tests:
+          - not_null
+      - name: order_dow
+        description: "Day of the week when the order was placed."
+        tests:
+          - not_null
+      - name: order_hour_of_day
+        description: "Hour of the day when the order was placed."
+        tests:
+          - not_null
+      - name: days_since_prior_order
+        description: "Number of days since the prior order was placed by the user."
+        tests:
+          - not_null
+      - name: created_at
+        description: "Timestamp when the order record was created."
+        tests:
+          - not_null
+      - name: updated_at
+        description: "Timestamp when the order record was last updated."
+        tests:
+          - not_null
+
+  - name: satellite_product
+    description: "This snapshot tracks historical changes for product-related fields like product_name, aisle_id, department_id."
+    unique_key: aisle_department_product_hkey
+    strategy: check
+    check_cols:
+      - product_name
+    columns:
+      - name: aisle_department_product_hkey
+        description: "A surrogate hash key for identifying unique product records across aisle_id, department_id, and product_id."
+        tests:
+          - not_null
+          - unique
+      - name: product_name
+        description: "The name of the product."
+        tests:
+          - not_null
+      - name: created_at
+        description: "Timestamp when the product record was created."
+        tests:
+          - not_null
+      - name: updated_at
+        description: "Timestamp when the product record was last updated."
+        tests:
+          - not_null                            
