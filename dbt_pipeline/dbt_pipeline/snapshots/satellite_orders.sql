@@ -14,6 +14,7 @@ select
     order_hour_of_day,
     days_since_prior_order,
     created_at,
-    updated_at
+    updated_at,
+    CURRENT_TIMESTAMP as load_timestamp
 from {{ source('streams', 'orders') }}  -- Reference source table
 {% endsnapshot %}

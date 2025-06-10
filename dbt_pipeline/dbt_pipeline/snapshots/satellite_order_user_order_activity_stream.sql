@@ -11,6 +11,7 @@ select
     add_to_cart_order,
     reordered,
     created_at,
-    updated_at
+    updated_at,
+    CURRENT_TIMESTAMP as load_timestamp
 from {{ source('streams', 'user_order_activity_stream') }}  -- Reference source table
 {% endsnapshot %}

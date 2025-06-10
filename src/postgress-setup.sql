@@ -167,3 +167,24 @@ GRANT CREATE ON SCHEMA streams TO developer;
 GRANT INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA batch TO developer;
 GRANT INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA staging TO developer;
 GRANT INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA streams TO developer;
+
+
+--To check the current encoding in PostgreSQL:
+ingestion=# SHOW server_encoding;
+CREATE DATABASE your_db_name ENCODING='UTF8';
+
+-- Explicit Encoding Conversion During Data Ingestion
+--UPDATE your_table
+--SET your_column = convert(your_column, 'WIN1252', 'UTF8')
+--WHERE your_column LIKE '%some problematic character%';
+
+--Ensure that your PostgreSQL client is also set to use UTF-8 for input/output:
+SHOW client_encoding;
+SET client_encoding = 'UTF8';
+--psql -U your_user -d your_db --set=client_encoding=UTF8
+
+  
+
+
+
+

@@ -16,6 +16,7 @@ select
     TRIM(address) as address,
     TRIM(phone_number) as phone_number,
     created_at,
-    updated_at
+    updated_at,
+    CURRENT_TIMESTAMP as load_timestamp
 from {{ source('batch','users') }}  -- Reference source table
 {% endsnapshot %}
