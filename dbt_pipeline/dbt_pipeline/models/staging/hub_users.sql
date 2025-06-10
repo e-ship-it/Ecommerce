@@ -2,7 +2,8 @@
     materialized='incremental',
     unique_key='user_hkey'
 ) }}
-
+-- Incremental load to only process new or updated records
+-- The unique key to identify each record
 
 with source_data as (
     select

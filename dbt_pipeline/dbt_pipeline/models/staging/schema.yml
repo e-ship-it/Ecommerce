@@ -19,33 +19,159 @@ models:
       - name: record_source
         description: "The source from which the data originated."
 
-
-  - name: satellite_user
-    description: "This model extracts contextual user data from the Satellite_User table."
+  - name: hub_product
+    description: "Hub table for product data. Stores the product_id (business key) and a surrogate key (product_hkey)."
     columns:
-      - name: user_hkey
-        description: "Unique identifier for the user."
+      - name: product_hkey
+        description: "Surrogate key generated using MD5 hash of product_id"
+        tests:
+          - unique
+          - not_null
+      - name: product_id
+        description: "Business key for the product"
         tests:
           - not_null
-      - name: user_name
-        description: "Full name of the user."
-      - name: email
-        description: "Email address of the user."
+      - name: load_timestamp
+        description: "Timestamp when the record was loaded"
         tests:
           - not_null
-      - name: birthdate
-        description: "User DOB"
-      - name: registration_date
-        description: "Date when the user signed up."
-      - name: address      
-        description: "Geographical location of the user."
-      - name: phone_number
-        description: "phone_number of the user."        
-      - name: created_at
+      - name: record_source
+        description: "Source of the record (e.g., batch.products)"
+        tests:
+          - not_null        
+
+  - name: link_order_user
+    description: "Link table that stores the relationship between orders and users."
+    columns:
+      - name: user_order_hkey
+        description: "Surrogate key for the relationship between order and user"
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        description: "Business key for the order"
+        tests:
+          - not_null
+      - name: user_id
+        description: "Business key for the user"
+        tests:
+          - not_null
+      - name: load_timestamp
+        description: "Timestamp when the record was loaded"
+        tests:
+          - not_null
+      - name: record_source
+        description: "Source of the record (e.g., streams.orders)"
+        tests:
+          - not_null
+
+  - name: link_user_product
+    description: "Link table that stores the relationship between users and products in the user's orders."
+    columns:
+      - name: user_product_hkey
+        description: "Surrogate key for the relationship between user and product"
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        description: "Business key for the order"
+        tests:
+          - not_null
+      - name: product_id
+        description: "Business key for the product"
+        tests:
+          - not_null
+      - name: load_timestamp
+        description: "Timestamp when the record was loaded"
+        tests:
+          - not_null
+      - name: record_source
+        description: "Source of the record (e.g., streams.user_order_activity_stream)"
+        tests:
+          - not_null
+
+  - name: link_order_product
+    description: "Link table that stores the relationship between orders and products."
+    columns:
+      - name: order_product_hkey
+        description: "Surrogate key for the relationship between order and product"
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        description: "Business key for the order"
+        tests:
+          - not_null
+      - name: product_id
+        description: "Business key for the product"
+        tests:
+          - not_null
+      - name: load_timestamp
+        description: "Timestamp when the record was loaded"
+        tests:
+          - not_null
+      - name: record_source
+        description: "Source of the record (e.g., streams.user_order_activity_stream)"
+        tests:
+          - not_null          
+
+  - name: hub_aisles
+    description: "This model extracts unique user data from the batch.users table."
+    columns:
+      - name: aisle_hkey
+        description: "Unique Hash key againt aisle_id"
+        tests:
+          - not_null
+          - unique
+      - name: aisle_id
+        description: "Unique identifier for the aisle."
+        tests:
+          - not_null
+          - unique
+      - name: load_timestamp
         description: "Timestamp of when this record was loaded."
-      - name: updated_at
-        description: "Timestamp of when this record was updated."
-      - name: record_status
-        description: "mark record as active or inactive"        
-      - name: end_date
-        description: "Set end_date for old records"
+      - name: record_source
+        description: "The source from which the data originated."
+
+  - name: hub_departments
+    description: "This model extracts unique user data from the batch.users table."
+    columns:
+      - name: department_hkey
+        description: "Unique Hash key againt department_id"
+        tests:
+          - not_null
+          - unique
+      - name: department_id
+        description: "Unique identifier for the department."
+        tests:
+          - not_null
+          - unique
+      - name: load_timestamp
+        description: "Timestamp of when this record was loaded."
+      - name: record_source
+        description: "The source from which the data originated."        
+
+  - name: link_aisle_department
+    description: "Link table that stores the relationship between users and products in the user's orders."
+    columns:
+      - name: aisle_department_hkey
+        description: "Surrogate key for the relationship between user and product"
+        tests:
+          - unique
+          - not_null
+      - name: aisle_id
+        description: "Business key for the aisle"
+        tests:
+          - not_null
+      - name: department_id
+        description: "Business key for the department"
+        tests:
+          - not_null
+      - name: load_timestamp
+        description: "Timestamp when the record was loaded"
+        tests:
+          - not_null
+      - name: record_source
+        description: "Source of the record (e.g., streams.user_order_activity_stream)"
+        tests:
+          - not_null        

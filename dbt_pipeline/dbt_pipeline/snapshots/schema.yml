@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: satellite_user
+    description: "This model extracts contextual user data from the Satellite_User table."
+    columns:
+      - name: user_hkey
+        description: "Unique identifier for the user."
+        tests:
+          - not_null
+      - name: user_name
+        description: "Full name of the user."
+      - name: email
+        description: "Email address of the user."
+        tests:
+          - not_null
+      - name: birthdate
+        description: "User DOB"
+      - name: registration_date
+        description: "Date when the user signed up."
+      - name: address      
+        description: "Geographical location of the user."
+      - name: phone_number
+        description: "phone_number of the user."        
+      - name: created_at
+        description: "Timestamp of when this record was loaded."
+      - name: updated_at
+        description: "Timestamp of when this record was updated."
