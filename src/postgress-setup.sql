@@ -157,7 +157,7 @@ SELECT n.nspname AS schema,
        has_schema_privilege(r.rolname, n.nspname, 'CREATE') AS can_create
 FROM pg_namespace n
 JOIN pg_roles r ON r.rolname = 'developer'
-WHERE n.nspname IN ('batch', 'staging', 'streams');
+WHERE n.nspname IN ('batch', 'staging', 'streams','opts_hub');
 
 -- Grant CREATE privileges so dbt can write to these schemas:
 GRANT CREATE ON SCHEMA batch TO developer;
@@ -168,7 +168,14 @@ GRANT INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA batch TO developer;
 GRANT INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA staging TO developer;
 GRANT INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA streams TO developer;
 
-
+-- PERMISSION if the schema is not the default target schema in dbt
+GRANT CREATE ON SCHEMA opts_hub TO developer;
+GRANT INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA opts_hub TO developer;
+GRANT USAGE ON SCHEMA opts_hub TO developer;
+GRANT CREATE ON SCHEMA opts_hub TO developer;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA opts_hub TO developer;
+GRANT SELECT,INSERT,UPDATE,DELETE ON TABLE opts_hub.dim_user TO developer;
+ALTER TABLE opts_hub.dim_user OWNER TO developer;
 --To check the current encoding in PostgreSQL:
 ingestion=# SHOW server_encoding;
 CREATE DATABASE your_db_name ENCODING='UTF8';
@@ -188,3 +195,22 @@ SET client_encoding = 'UTF8';
 
 
 
+-- As dbt is not a database engine, just a SQL transformation tool
+--Auto-increment behavior is a database feature, not a SQL standard
+--dbt models generate SQL queries but don’t control how the database stores or manages the data internally.
+--dbt incremental models generate INSERT or MERGE SQL to add or update data.
+--Hence create dimension tables with surrogate keys in your warehouse ahead of time.
+--No, it’s not possible to create an auto-incrementing ID in dbt. In fact, auto-incrementing keys in general are a bad idea.
+--CREATE TABLE opts_hub.dim_user (
+--    dim_user_id SERIAL PRIMARY KEY,
+--    user_id BIGINT NOT NULL,
+--    user_hkey VARCHAR NOT NULL UNIQUE,
+--    user_name VARCHAR,
+--    email VARCHAR,
+--    phone_number VARCHAR,
+--    address VARCHAR,
+--    birthdate DATE,
+--    registration_date DATE,
+--    valid_from TIMESTAMP NOT NULL,
+--    valid_to TIMESTAMP NOT NULL DEFAULT '9999-12-31'
+--);

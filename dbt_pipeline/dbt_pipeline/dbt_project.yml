@@ -22,7 +22,6 @@ clean-targets:         # directories to be removed by `dbt clean`
   - "target"
   - "dbt_packages"
 
-
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 
@@ -32,7 +31,9 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   dbt_pipeline:
     # Config indicated by + and applies to all files under models/example/
-    # not to prepend the target schema from the profile to the model schema
-    +generate_schema_name: false
     example:
       +materialized: view
+    staging:
+      +schema: staging
+    opts_hub:
+      +schema: opts_hub

@@ -2,112 +2,96 @@ version: 2
 
 models:
   - name: dim_user
-    description: "DIM table for users, tracking historical changes with SCD2 methodology."
-    materialized: table
-    unique_key: user_hkey
+    description: >
+      Slowly Changing Dimension Type 2 (SCD2) for users.
+      Tracks user attributes like email, address, and phone over time
+      using surrogate key and valid_from / valid_to logic.
     columns:
-      - name: user_hkey
-        description: "Surrogate key for the user."
+      - name: dim_user_id
+        description: Surrogate key for the user dimension (auto-incremented).
         tests:
           - not_null
           - unique
-      - name: user_id
-        description: "Business key for the user, derived from user_id."
-        tests:
-          - not_null
-      - name: name
-        description: "Full name of the user."
-      - name: email
-        description: "Email address of the user (unique)."
-        tests:
-          - not_null
-          - unique
-      - name: birthdate
-        description: "Birthdate of the user."
-      - name: registration_date
-        description: "Registration date of the user."
-      - name: address
-        description: "Address of the user."
-      - name: phone_number
-        description: "Phone number of the user."
-      - name: start_date
-        description: "The date when the user's information first became valid."
-        tests:
-          - not_null
-      - name: end_date
-        description: "The date when the user's information was no longer valid (for SCD2)."
-      - name: current_flag
-        description: "Flag indicating whether this record is the current version for the user."
-        tests:
-          - not_null
-          - accepted_values:
-              values: [True, False]
 
-  # DIM table for products (SCD2)
+      - name: user_hkey
+        description: Hash key from Data Vault model, uniquely identifies a user.
+        tests:
+          - not_null
+          - unique  # Only one active record per user_hkey at a time
+
+      - name: user_id
+        description: The user's id.
+
+      - name: user_name
+        description: The user's name.
+
+      - name: email
+        description: Email address of the user.
+
+      - name: phone_number
+        description: Contact number.
+
+      - name: address
+        description: Residential address of the user.
+
+      - name: birthdate
+        description: Birth date of the user.
+
+      - name: registration_date
+        description: When the user registered.
+
+      - name: valid_from
+        description: Timestamp when this version of the record became valid.
+        tests:
+          - not_null
+
+      - name: valid_to
+        description: Timestamp when this version of the record expired. Defaults to 9999-12-31 for active records.
+        tests:
+          - not_null
+
   - name: dim_product
-    description: "DIM table for products, tracking historical changes with SCD2 methodology."
-    materialized: table
-    unique_key: product_hkey
+    description: >
+      Slowly Changing Dimension Type 2 (SCD2) for product.
+      Tracks user attributes like product anme, aisle, and department over time
+      using surrogate key and valid_from / valid_to logic.
     columns:
       - name: product_hkey
-        description: "Surrogate key for the product."
+        description: Hash key from Data Vault model, uniquely identifies a product.
         tests:
           - not_null
-          - unique
-      - name: product_id
-        description: "Business key for the product, derived from product_id."
-        tests:
-          - not_null
+          - unique  # Only one active record per user_hkey at a time
+
+      - name: user_idproduct_id
+        description: The product's id.
+
       - name: product_name
-        description: "Product name."
-        tests:
-          - not_null
+        description: The product's name.
+
       - name: aisle_id
-        description: "Aisle ID for the product."
+        description: aisle id for the product.
+
+      - name: aisle
+        description: aisle name for the product.
+
       - name: department_id
-        description: "Department ID for the product."
-      - name: start_date
-        description: "The date when the product's information first became valid."
-        tests:
-          - not_null
-      - name: end_date
-        description: "The date when the product's information was no longer valid (for SCD2)."
-      - name: current_flag
-        description: "Flag indicating whether this record is the current version for the product."
-        tests:
-          - not_null
-          - accepted_values:
-              values: [True, False]
+        description: department id for the product.
 
-  # DIM table for aisles (SCD2)
-  - name: dim_aisle
-    description: "DIM table for aisles, tracking historical changes with SCD2 methodology."
-    materialized: table
-    unique_key: aisle_hkey
-    columns:
-      - name: aisle_hkey
-        description: "Surrogate key for the aisle."
-        tests:
-          - not_null
-          - unique
-      - name: aisle_id
-        description: "Business key for the aisle."
-        tests:
-          - not_null
-      - name: aisle_name
-        description: "Aisle name."
-        tests:
-          - not_null
-      - name: start_date
-        description: "The date when the aisle's information first became valid."
-        tests:
-          - not_null
-      - name: end_date
-        description: "The date when the aisle's information was no longer valid (for SCD2)."
-      - name: current_flag
-        description: "Flag indicating whether this record is the current version for the aisle."
-        tests:
-          - not_null
-          - accepted_values:
-              values: [True, False]
+      - name: department
+        description: department name for the product.
 
+      - name: created_at
+        description: When the record details was generated.
+
+      - name: updated_at
+        description: When the record details was updated.        
+
+      - name: valid_from
+        description: Timestamp when this version of the record became valid.
+        tests:
+          - not_null
+
+      - name: valid_to
+        description: Timestamp when this version of the record expired. Defaults to 9999-12-31 for active records.
+        tests:
+          - not_null
