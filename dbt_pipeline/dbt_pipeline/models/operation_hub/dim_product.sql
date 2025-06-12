@@ -57,6 +57,7 @@ existing_dim as (
 
 changes as (
     select
+        (COALESCE((SELECT MAX(DIM_PRODUCT_ID) FROM existing_dim), 0) + ROW_NUMBER() OVER (ORDER BY c.created_at)) AS DIM_PRODUCT_ID,
         c.product_hkey,
         c.product_id,
         c.product_name,
@@ -91,6 +92,7 @@ expired_old as (
 
 expired_old_update as (
     select
+        e.DIM_PRODUCT_ID,
         e.product_hkey,
         e.product_id,
         e.product_name,
@@ -111,6 +113,7 @@ select * from expired_old_update
 union all
 
 select
+    DIM_PRODUCT_ID,
     product_hkey,
     product_id,
     product_name,
@@ -152,6 +155,7 @@ current_records as (
 
 with_dimensions as (
     select
+        (ROW_NUMBER() OVER (ORDER BY w.created_at)) AS DIM_PRODUCT_ID,
         w.product_hkey,
         w.product_id,
         w.product_name,
@@ -171,6 +175,7 @@ with_dimensions as (
 )
 
 select
+    DIM_PRODUCT_ID,
     product_hkey,
     product_id,
     product_name,

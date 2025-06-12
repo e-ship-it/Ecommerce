@@ -33,6 +33,7 @@ existing_dim as (
 
 changes as (
     select
+        (COALESCE((SELECT MAX(DIM_USER_ID) FROM existing_dim), 0) + ROW_NUMBER() OVER (ORDER BY c.load_timestamp)) AS DIM_USER_ID,
         c.user_hkey,
         c.user_id,
         c.user_name,
@@ -67,6 +68,7 @@ expired_old as (
 
 expired_old_update as (
     select
+        e.DIM_USER_ID,
         e.user_hkey,
         e.user_id,
         e.user_name,
@@ -85,7 +87,7 @@ select * from expired_old_update
 
 union all
 
-select
+select DIM_USER_ID,
     user_hkey,
     user_id,
     user_name,
@@ -104,7 +106,7 @@ where valid_from > (
 {% else %}
 
 with latest_sat as (
-    select
+    select (ROW_NUMBER() OVER (ORDER BY s.load_timestamp)) AS DIM_USER_ID,
         s.user_hkey,
         h.user_id,
         s.user_name,
@@ -124,7 +126,7 @@ current_records as (
     select * from latest_sat where rn = 1
 )
 
-select
+select DIM_USER_ID,
     user_hkey,
     user_id,
     user_name,
