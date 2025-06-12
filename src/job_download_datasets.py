@@ -21,7 +21,7 @@ def downnload_kaggle_dataset(dataset_name,meta_file_name):
     if not os.path.exists(directory):
         os.makedirs(directory)
     meta_file = directory + meta_file_name
-    remote_meta = kg.dataset_list(search = "yasserh/instacart-online-grocery-basket-analysis-dataset")
+    remote_meta = kg.dataset_list(search = dataset_name)
     remote_updated_at = remote_meta[0]._last_updated
     remote_updated_at = remote_updated_at.strftime("%Y-%m-%d %H:%M:%S")
 
@@ -39,12 +39,13 @@ def downnload_kaggle_dataset(dataset_name,meta_file_name):
         print("!~~~~~~\n\n\n\n")
         with open(meta_file,'w') as f:
             json.dump({"lastUpdated":remote_updated_at},f)
-        kg.dataset_download_files(dataset = "yasserh/instacart-online-grocery-basket-analysis-dataset", path= directory, unzip=True)
+        kg.dataset_download_files(dataset = dataset_name, path= directory, unzip=True)
 
 #Reading the datasets
 #downnload_kaggle_dataset("instacart-online-grocery-basket-analysis-dataset","instacart_meta_file.json")
 downnload_kaggle_dataset("bittlingmayer/amazonreviews","amazonreviews_meta_file.json")
-#downnload_kaggle_dataset("retailrocket/ecommerce-dataset","retailrocket_meta_file.json")
+downnload_kaggle_dataset("vibivij/amazon-electronics-rating-datasetrecommendation","amazon-electronics-rating_meta_file.json")
+downnload_kaggle_dataset("retailrocket/ecommerce-dataset","retailrocket_meta_file.json")
 
 #df_product = pd.read_csv('dataset/products.csv', encoding='ISO-8859-1') #window encoding
 #print(df_product.head(1).transpose())

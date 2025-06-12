@@ -1,7 +1,23 @@
 {{ config(
     materialized='incremental',
-    unique_key='fact_order_id',
-    schema= 'opts_hub'
+    unique_key= ['dim_product_id', 'order_id'],
+    schema= 'opts_hub',
+    post_hook=[
+        "
+        DO $$
+        BEGIN
+            IF NOT EXISTS (
+                SELECT 1
+                FROM information_schema.table_constraints
+                WHERE constraint_name = 'fact_order_pk'
+                  AND table_name = 'fact_order'
+            ) THEN
+                ALTER TABLE {{ this }} ADD CONSTRAINT fact_order_pk PRIMARY KEY (dim_product_id, order_id);
+            END IF;
+        END
+        $$;
+        "
+    ]
 ) }}
 
 
@@ -29,7 +45,7 @@ WITH order_details AS (
         o.days_since_prior_order,
         d2.product_name,
         d2.department,
-        ROW_NUMBER() OVER (PARTITION BY u.user_order_hkey ORDER BY o.load_timestamp) as rn
+        ROW_NUMBER() OVER (PARTITION BY DIM_PRODUCT_ID,order_id ORDER BY o.load_timestamp) as rn
     FROM {{ ref('satellite_orders') }} o
     JOIN {{ ref('link_order_product') }} p ON o.order_hkey = p.order_hkey
     JOIN {{ ref('link_order_user') }} u ON o.order_hkey = u.order_hkey
