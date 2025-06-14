@@ -27,6 +27,27 @@ def run_job_ingest_kafka_streaming_orders_data(logger):
         logger.error(result.stderr)
         raise Exception("job_ingest_kafka_streaming_orders_data: failed!!")
 
+@task
+def run_job_simulate_kafka_user_order_activity_stream(logger):
+    cwd = str(project_dir) + "/src" 
+    logger.info("Running job_simulate_kafka_user_order_activity_stream...")
+    result = subprocess.run(["python", "job_simulate_kafka_user_order_activity_stream.py"], capture_output=True, text=True,cwd=cwd)
+    logger.info(result.stdout)
+    if result.returncode != 0:
+        logger.error(result.stderr)
+        raise Exception("job_simulate_kafka_user_order_activity_stream: failed!!")
+
+@task
+def run_job_ingest_kafka_streaming_user_order_activity(logger):
+    cwd = str(project_dir) + "/src" 
+    print(cwd)
+    logger.info("Running job_ingest_kafka_streaming_user_order_activity...")
+    result = subprocess.run(["python", "job_ingest_kafka_streaming_user_order_activity.py"], capture_output=True, text=True,cwd=cwd)
+    logger.info(result.stdout)
+    if result.returncode != 0:
+        logger.error(result.stderr)
+        raise Exception("job_ingest_kafka_streaming_user_order_activity: failed!!")        
+
 
 @task
 def run_dbt(logger,dbt_path):
@@ -51,9 +72,11 @@ def my_pipeline():
 
     logger = generate_logFile.setup_run_logger()
 
-    #for _ in range(10):
-    #    run_job_simulate_kafka_orders_streaming(logger)
-    #    run_job_ingest_kafka_streaming_orders_data(logger)
+    for _ in range(5):
+        run_job_simulate_kafka_orders_streaming(logger)
+        run_job_ingest_kafka_streaming_orders_data(logger)
+        run_job_simulate_kafka_user_order_activity_stream(logger)
+        run_job_ingest_kafka_streaming_user_order_activity(logger)
     run_dbt(logger,dbt_path)
     logger.info("Job finished.")
     for handler in logger.handlers:

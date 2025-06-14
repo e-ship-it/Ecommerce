@@ -30,7 +30,7 @@ try:
     if len(sys.argv)>1:
         chunk_size = int(sys.argv[1])
     else:
-        chunk_size = random.randint(1,50)
+        chunk_size = random.randint(1,150)
     random_records = random.sample(lines,chunk_size)
     print(chunk_size,len(random_records))
     producer = KafkaProducer(
