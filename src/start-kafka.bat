@@ -13,7 +13,7 @@ if %ERRORLEVEL% NEQ 0 (
     goto ZookeeperWAIT
 )
 
-timeout /t 5
+timeout /t 15
 REM ========Start Kafka ===============
 start cmd /k "cd /d C:\kafka && bin\Windows\kafka-server-start config\server.properties"
 
@@ -26,6 +26,7 @@ if %ERRORLEVEL% EQU 1 (
         echo Kafka server closed unexpectedly. trying again....
         start cmd /k "cd /d C:\kafka && bin\Windows\kafka-server-start config\server.properties"
         timeout /t 5 
+        goto KafkaWAIT
     ) else (
         if %ERRORLEVEL% NEQ 0 (
             echo Kafka is not ready. Retrying...
@@ -33,3 +34,8 @@ if %ERRORLEVEL% EQU 1 (
             goto KafkaWAIT
         )
 )
+
+echo Kafka is ready.
+
+REM All done, exit with code 0
+exit /b %ERRORLEVEL%

@@ -2,6 +2,7 @@
 venv/
 dataset/
 orders_Stream_Error_Files/
+Orchestration/logs
 
 # Ignore environment variable files
 .env
