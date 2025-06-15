@@ -50,14 +50,34 @@ def run_job_ingest_kafka_streaming_user_order_activity(logger):
 
 
 @task
-def run_dbt(logger,dbt_path):
-    logger.info("Running dbt...")
+def run_dbt_staging(logger,dbt_path):
+    logger.info("Running dbt staging models...")
     cwd = os.path.join(project_dir, "dbt_pipeline", "dbt_pipeline")
     result = subprocess.run([str(dbt_path), "run","--select","staging"], capture_output=True, text=True, cwd = cwd,shell=True)
     logger.info(result.stdout)
     if result.returncode != 0:
         logger.error(result.stderr)
-        raise Exception("dbt run failed")
+        raise Exception("dbt staging models run failed")
+
+@task
+def run_dbt_operation_hub(logger,dbt_path):
+    logger.info("Running dbt operation_hub models...")
+    cwd = os.path.join(project_dir, "dbt_pipeline", "dbt_pipeline")
+    result = subprocess.run([str(dbt_path), "run","--select","operation_hub"], capture_output=True, text=True, cwd = cwd,shell=True)
+    logger.info(result.stdout)
+    if result.returncode != 0:
+        logger.error(result.stderr)
+        raise Exception("dbt operation_hub models run failed")                
+
+@task
+def run_dbt_analytics(logger,dbt_path):
+    logger.info("Running dbt analytics models...")
+    cwd = os.path.join(project_dir, "dbt_pipeline", "dbt_pipeline")
+    result = subprocess.run([str(dbt_path), "run","--select","analytics"], capture_output=True, text=True, cwd = cwd,shell=True)
+    logger.info(result.stdout)
+    if result.returncode != 0:
+        logger.error(result.stderr)
+        raise Exception("dbt analytics models run failed")
 
 @flow
 def my_pipeline():
@@ -77,7 +97,9 @@ def my_pipeline():
         run_job_ingest_kafka_streaming_orders_data(logger)
         run_job_simulate_kafka_user_order_activity_stream(logger)
         run_job_ingest_kafka_streaming_user_order_activity(logger)
-    run_dbt(logger,dbt_path)
+    run_dbt_staging(logger,dbt_path)
+    run_dbt_operation_hub(logger,dbt_path)
+    run_dbt_analytics(logger,dbt_path)
     logger.info("Job finished.")
     for handler in logger.handlers:
         handler.flush()
