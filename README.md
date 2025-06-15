@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project demonstrates the development of a Real-Time E-commerce Product Recommendation System for e-commerce platforms. The system ingests streaming data (user interactions), builds machine learning models for product recommendations, and visualizes results in an interactive dashboard. It leverages modern data engineering practices, machine learning algorithms, and DevOps tools to create a scalable, automated, and real-time recommendation system.
+- This project demonstrates the development of a Real-Time E-commerce Product Recommendation System for e-commerce platforms. The system ingests streaming data (user interactions), builds machine learning models for product recommendations, and visualizes results in an interactive dashboard. It leverages modern data engineering practices, machine learning algorithms, and DevOps tools to create a scalable, automated, and real-time recommendation system.
 ---
 
 ## System Architecture and Components
