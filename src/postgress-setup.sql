@@ -214,3 +214,9 @@ SET client_encoding = 'UTF8';
 --    valid_from TIMESTAMP NOT NULL,
 --    valid_to TIMESTAMP NOT NULL DEFAULT '9999-12-31'
 --);
+
+
+SELECT
+    table_name,
+    column_name
+    FROM information_schema.columns WHERE table_schema = 'staging';

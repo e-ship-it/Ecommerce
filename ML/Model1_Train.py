@@ -13,6 +13,7 @@ import pandas as pd
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 import os
+import joblib
 
 
 # Load CSV file
@@ -53,26 +54,30 @@ models = {
     "MultinomialNB": MultinomialNB()
 }
 
+model_acc = dict()
+trained_models = {}
 # Train and evaluate
-for name, model in models.items():
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    acc = accuracy_score(y_test, y_pred)
-    print(f"{name}: {acc:.2f}")
+with open("Classification_Nodel_product_dptmt.txt",'w') as f:
+    for name, model in models.items():
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        acc = accuracy_score(y_test, y_pred)
+        model_acc[name] = acc
+        trained_models[name] = model
+        
+        # Write nicely formatted output
+        f.write(f"Model: {name}\n")
+        f.write(f"Accuracy: {acc:.2f}\n")
+        f.write("Confusion Matrix:\n")
+        f.write(f"{confusion_matrix(y_test, y_pred)}\n")
+        f.write("Classification Report:\n")
+        f.write(f"{classification_report(y_test, y_pred, zero_division=0)}\n")
+        f.write("="*50 + "\n")
 
 
-# Example using SVM
-model = SVC()
-model.fit(X_train, y_train)
-y_pred = model.predict(X_test)
+    # choosing the best model
+    best_model_name = max(accuracies, key=accuracies.get)
+    best_model = trained_models[best_model_name]
+    joblib.dump(best_model, 'Classification_Nodel_product_dptmt_best.joblib')
 
-print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
-print("\nClassification Report:\n", classification_report(y_test, y_pred))
 
-#check the prediction
-new_product = ["Fresh Banana"]
-# Vectorize new input using the SAME vectorizer
-X_new = vectorizer.transform(new_product)
-# Predict department
-predicted_department = model.predict(X_new)
-print(predicted_department)  # Output: 'Produce' (for example)
