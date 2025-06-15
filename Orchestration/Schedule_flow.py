@@ -10,7 +10,7 @@ project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # Glob
 def run_job_simulate_kafka_orders_streaming(logger):
     cwd = str(project_dir) + "/src" 
     logger.info("Running job_simulate_kafka_orders_streaming...")
-    result = subprocess.run(["python", "job_simulate_kafka_orders_streaming.py"], capture_output=True, text=True,cwd=cwd)
+    result = subprocess.run(["python", "job_simulate_kafka_orders_streaming.py","1000"], capture_output=True, text=True,cwd=cwd)
     logger.info(result.stdout)
     if result.returncode != 0:
         logger.error(result.stderr)
@@ -31,7 +31,7 @@ def run_job_ingest_kafka_streaming_orders_data(logger):
 def run_job_simulate_kafka_user_order_activity_stream(logger):
     cwd = str(project_dir) + "/src" 
     logger.info("Running job_simulate_kafka_user_order_activity_stream...")
-    result = subprocess.run(["python", "job_simulate_kafka_user_order_activity_stream.py"], capture_output=True, text=True,cwd=cwd)
+    result = subprocess.run(["python", "job_simulate_kafka_user_order_activity_stream.py","250"], capture_output=True, text=True,cwd=cwd)
     logger.info(result.stdout)
     if result.returncode != 0:
         logger.error(result.stderr)
@@ -53,7 +53,7 @@ def run_job_ingest_kafka_streaming_user_order_activity(logger):
 def run_dbt(logger,dbt_path):
     logger.info("Running dbt...")
     cwd = os.path.join(project_dir, "dbt_pipeline", "dbt_pipeline")
-    result = subprocess.run([str(dbt_path), "run"], capture_output=True, text=True, cwd = cwd,shell=True)
+    result = subprocess.run([str(dbt_path), "run","--select","staging"], capture_output=True, text=True, cwd = cwd,shell=True)
     logger.info(result.stdout)
     if result.returncode != 0:
         logger.error(result.stderr)

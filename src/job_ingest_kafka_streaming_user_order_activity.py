@@ -20,6 +20,7 @@ def empty_str_to_null(value):
         return value
 
 def load_data_from_kafka_into_postgres(data,cursor,connection):
+    print(data)
     values_to_insert = [(d['order_id'],d['product_id'],empty_str_to_null(d['add_to_cart_order']),empty_str_to_null(d['reordered']))
     for d in data]
     print(values_to_insert)
@@ -77,7 +78,7 @@ try:
     consumer = KafkaConsumer(
         "user_order_activity_stream",
         bootstrap_servers = ['localhost:9092'],
-        auto_offset_reset='earliest',  # Start from the earliest message (default: 'latest')
+        #auto_offset_reset='earliest',  # Start from the earliest message (default: 'latest')
         group_id='user_order_activity-group', #mandate
         value_deserializer = lambda v: json.loads(v.decode('utf-8')),
         enable_auto_commit = True # Kafka commits the offset automatically after a message is read: don’t read it again

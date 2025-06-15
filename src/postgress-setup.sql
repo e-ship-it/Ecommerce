@@ -177,8 +177,17 @@ GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA opts_hub TO developer;
 GRANT SELECT,INSERT,UPDATE,DELETE ON TABLE opts_hub.dim_user TO developer;
 ALTER TABLE opts_hub.dim_user OWNER TO developer;
 --To check the current encoding in PostgreSQL:
+
+GRANT CREATE ON SCHEMA mart TO developer;
+GRANT INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA mart TO developer;
+GRANT USAGE ON SCHEMA mart TO developer;
+GRANT CREATE ON SCHEMA mart TO developer;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA mart TO developer;
+
 ingestion=# SHOW server_encoding;
 CREATE DATABASE your_db_name ENCODING='UTF8';
+
+
 
 -- Explicit Encoding Conversion During Data Ingestion
 --UPDATE your_table

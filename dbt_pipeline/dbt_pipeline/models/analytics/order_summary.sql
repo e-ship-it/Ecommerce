@@ -4,14 +4,13 @@
 ) }}
 
 WITH user_info AS (
-    SELECT 
-        hu.user_id,
-        su.user_name,
-        su.email,
-        su.address,
-        hu.user_hkey
-    FROM {{ ref('hub_users') }} hu
-    LEFT JOIN {{ ref('satellite_user') }} su ON hu.user_hkey = su.user_hkey
+    SELECT DIM_USER_ID,
+        user_id,
+        user_name,
+        email,
+        address,
+        user_hkey
+    FROM {{ ref('dim_user') }}
 ),
 
 order_info AS (SELECT 
@@ -56,37 +55,13 @@ order_product_link AS (
     FROM {{ ref('link_order_product') }}
 ),
 
-product_info AS( SELECT 
+product_info AS( 
+    SELECT product_hkey,
         product_id,
         product_name,
-        product_hkey,
-        aisle_department_product_hkey FROM(
-    SELECT 
-        hp.product_id,
-        sp.product_name,
-        hp.product_hkey,
-        sp.aisle_department_product_hkey,
-        ROW_NUMBER() OVER (PARTITION BY sp.product_hkey ORDER BY sp.load_timestamp) as rn
-    FROM {{ ref('hub_product') }} hp
-    LEFT JOIN {{ ref('satellite_product') }} sp ON hp.product_hkey = sp.product_hkey) t where rn =1
-),
-
-product_mapping AS (
-    SELECT 
-        adp.product_hkey,
-        adp.aisle_hkey,
-        adp.department_hkey
-    FROM {{ ref('link_aisle_department_product') }} adp
-),
-
-aisle_department_info AS (
-    SELECT 
-        ha.aisle_id,
-        ha.aisle_hkey,
-        hd.department_id,
-        hd.department_hkey
-    FROM {{ ref('hub_aisles') }} ha
-    JOIN {{ ref('hub_departments') }} hd ON 1=1
+        department,
+        aisle
+    FROM {{ ref('dim_product') }} dp
 ),
 
 final_summary AS (
@@ -99,7 +74,8 @@ final_summary AS (
         oi.order_hour_of_day,
         oi.days_since_prior_order,
         pi.product_name,
-        adi.department,
+        pi.department,
+        pi.aisle,
         ast.reordered,
         ast.add_to_cart_order
     FROM user_order_link uol
@@ -108,9 +84,6 @@ final_summary AS (
     JOIN order_product_link opl ON opl.order_hkey = oi.order_hkey
     JOIN product_info pi ON pi.product_hkey = opl.product_hkey
     JOIN activity_stream ast ON ast.order_product_hkey = opl.order_product_hkey
-    JOIN product_mapping pm ON pm.product_hkey = pi.product_hkey
-    JOIN aisle_department_info adi 
-        ON adi.aisle_hkey = pm.aisle_hkey AND adi.department_hkey = pm.department_hkey
 )
 
 SELECT * FROM final_summary

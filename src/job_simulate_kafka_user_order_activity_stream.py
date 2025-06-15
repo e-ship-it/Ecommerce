@@ -4,6 +4,7 @@ from datetime import datetime
 import os, time, csv, random, json, sys, traceback
 from kafka.admin import KafkaAdminClient, NewTopic
 import kafka.errors as KafkaError
+import pandas as pd
 
 bootstrap_servers = ["localhost:9092"]
 admin_client = KafkaAdminClient(bootstrap_servers = bootstrap_servers)
@@ -24,23 +25,31 @@ admin_client.close()
 try:
     cwd_= os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     dataset_path = cwd_+ "/dataset/bittlingmayer/amazonreviews/order_products__prior.csv"
-    if os.path.exists(dataset_path):
-        with open(dataset_path,'r') as f:
-            lines = list(csv.DictReader(f))
+    offset_file=cwd_+ "/dataset/bittlingmayer/amazonreviews/order_products__prior_offset.txt"
     if len(sys.argv)>1:
         chunk_size = int(sys.argv[1])
     else:
-        chunk_size = random.randint(1,150)
-    random_records = random.sample(lines,chunk_size)
-    print(chunk_size,len(random_records))
+        chunk_size = random.randint(1,450)
+    if os.path.exists(offset_file):
+        with open(offset_file, 'r') as f:
+            last_offset = int(f.read().strip())
+    else:
+        last_offset = 0  # If the offset file doesn't exist, start from the beginning
+    if os.path.exists(dataset_path):
+        chunk = pd.read_csv(dataset_path, skiprows=range(1, last_offset + 1), nrows=chunk_size)
+        print(chunk.columns)
+        chunk = chunk.to_dict('records')
+        new_offset = last_offset + len(chunk)
+        with open(offset_file, 'w') as f:
+            f.write(str(new_offset))
     producer = KafkaProducer(
         bootstrap_servers = ["localhost:9092"],
         value_serializer = lambda v: json.dumps(v).encode("utf-8"),
         acks=1,  # Ensure quicker acknowledgment from Kafka broker
         request_timeout_ms=5000  # Set a timeout (e.g., 5 seconds)
     )
-    producer.send("user_order_activity_stream",random_records)
-    print(f"{len(random_records)} records successfully send over the topic at {datetime.now()}")
+    producer.send("user_order_activity_stream",chunk)
+    print(f"{len(chunk)} records successfully send over the topic at {datetime.now()}")
     producer.flush()
     producer.close()
 
