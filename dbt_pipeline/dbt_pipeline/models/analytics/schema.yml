@@ -1,0 +1,57 @@
+version: 2
+
+models:
+  - name: order_summary
+    description: >
+      A denormalized fact-style summary model combining user, order, and product
+      information from the Data Vault. Each row represents one product in one user order.
+    columns:
+      - name: user_id
+        description: Unique identifier for the user
+        tests:
+          - not_null
+
+      - name: user_name
+        description: Name of the user
+
+      - name: email
+        description: Email address of the user
+
+      - name: address
+        description: Address of the user
+
+      - name: order_id
+        description: Unique identifier for the order
+        tests:
+          - not_null
+
+      - name: order_number
+        description: Sequential order number for the user
+
+      - name: order_dow
+        description: Day of week the order was placed (0=Sunday)
+
+      - name: order_hour_of_day
+        description: Hour of the day the order was placed (24-hour format)
+
+      - name: days_since_prior_order
+        description: Days since the previous order
+
+      - name: product_name
+        description: Name of the product ordered
+
+      - name: department
+        description: Department to which the product belongs
+
+      - name: reordered
+        description: Whether the product was reordered (1 = Yes, 0 = No)
+
+      - name: add_to_cart_order
+        description: Position of the product in the cart (e.g., 1 = first added)
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - user_id
+            - order_id
+            - product_name

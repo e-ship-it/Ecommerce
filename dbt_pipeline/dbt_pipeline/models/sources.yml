@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  - name: batch
+    database: ingestion
+    schema: batch
+    tables:
+      - name: aisles
+      - name: departments
+      - name: products
+      - name: users
+
+  - name: streams
+    database: ingestion
+    schema: streams
+    tables:
+      - name: orders
+      - name: user_order_activity_stream

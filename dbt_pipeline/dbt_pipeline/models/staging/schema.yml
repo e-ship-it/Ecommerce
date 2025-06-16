@@ -1,0 +1,274 @@
+version: 2
+
+models:
+  - name: hub_users
+    description: "This model extracts unique user data from the batch.users table."
+    columns:
+      - name: user_hkey
+        description: "Unique Hash key againt user_id"
+        tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: "Unique identifier for the user."
+        tests:
+          - not_null
+          - unique
+      - name: load_timestamp
+        description: "Timestamp of when this record was loaded."
+      - name: record_source
+        description: "The source from which the data originated."
+
+  - name: hub_product
+    description: "Hub table for product data. Stores the product_id (business key) and a surrogate key (product_hkey)."
+    columns:
+      - name: product_hkey
+        description: "Surrogate key generated using MD5 hash of product_id"
+        tests:
+          - unique
+          - not_null
+      - name: product_id
+        description: "Business key for the product"
+        tests:
+          - not_null
+      - name: load_timestamp
+        description: "Timestamp when the record was loaded"
+        tests:
+          - not_null
+      - name: record_source
+        description: "Source of the record (e.g., batch.products)"
+        tests:
+          - not_null        
+ 
+
+  - name: hub_aisles
+    description: "This model extracts unique user data from the batch.users table."
+    columns:
+      - name: aisle_hkey
+        description: "Unique Hash key againt aisle_id"
+        tests:
+          - not_null
+          - unique
+      - name: aisle_id
+        description: "Unique identifier for the aisle."
+        tests:
+          - not_null
+          - unique
+      - name: load_timestamp
+        description: "Timestamp of when this record was loaded."
+      - name: record_source
+        description: "The source from which the data originated."
+
+  - name: hub_departments
+    description: "This model extracts unique user data from the batch.users table."
+    columns:
+      - name: department_hkey
+        description: "Unique Hash key againt department_id"
+        tests:
+          - not_null
+          - unique
+      - name: department_id
+        description: "Unique identifier for the department."
+        tests:
+          - not_null
+          - unique
+      - name: load_timestamp
+        description: "Timestamp of when this record was loaded."
+      - name: record_source
+        description: "The source from which the data originated."               
+
+  - name: link_order_product
+    description: "This model captures the relationship between orders and products, tracking the unique pairing and associated metadata."
+    materialized: incremental
+    unique_key: order_product_hkey
+    columns:
+      - name: order_product_hkey
+        description: "A surrogate key for the relationship between order and product."
+        tests:
+          - not_null
+          - unique
+      - name: order_hkey
+        description: "Business key for the order, derived from the order_id."
+        tests:
+          - not_null
+      - name: product_hkey
+        description: "Business key for the product, derived from product_id."
+        tests:
+          - not_null
+      - name: load_timestamp
+        description: "Timestamp when the record was loaded or updated."
+        tests:
+          - not_null
+      - name: record_source
+        description: "The source from which the record was pulled (e.g., 'streams.user_order_activity_stream')."
+        tests:
+          - not_null
+
+  - name: link_aisle_department_product
+    description: "This model represents the relationship between users, products, aisles, and departments based on user-product interaction data."
+    materialized: incremental
+    unique_key: aisle_department_product_hkey
+    columns:
+      - name: aisle_department_product_hkey
+        description: "A surrogate hash key for the relationship between aisle, department, and product."
+        tests:
+          - not_null
+          - unique
+      - name: product_hkey
+        description: "Business key for the product, derived from product_id."
+        tests:
+          - not_null
+      - name: aisle_hkey
+        description: "Business key for the aisle, derived from aisle_id."
+        tests:
+          - not_null
+      - name: department_hkey
+        description: "Business key for the department, derived from department_id."
+        tests:
+          - not_null
+      - name: load_timestamp
+        description: "Timestamp when the record was loaded or updated."
+        tests:
+          - not_null
+      - name: record_source
+        description: "The source from which the record was pulled (e.g., 'batch.products')."
+        tests:
+          - not_null
+
+
+  - name: link_order_user
+    description: "This model represents the relationship between users and orders, linking user details to their order history."
+    materialized: incremental
+    unique_key: user_order_hkey
+    columns:
+      - name: user_order_hkey
+        description: "A surrogate hash key for the relationship between user and order."
+        tests:
+          - not_null
+          - unique
+      - name: order_hkey
+        description: "Business key for the order, derived from order_id."
+        tests:
+          - not_null
+      - name: user_hkey
+        description: "Business key for the user, derived from user_id."
+        tests:
+          - not_null
+      - name: load_timestamp
+        description: "Timestamp when the record was loaded or updated."
+        tests:
+          - not_null
+      - name: record_source
+        description: "The source from which the record was pulled (e.g., 'streams.orders')."
+        tests:
+          - not_null          
+
+  - name: satellite_user
+    description: "Satellite capturing user descriptive attributes with SCD2 incremental loading."
+    columns:
+      - name: user_hkey
+        description: "Surrogate key linking to the user hub."
+        tests:
+          - not_null
+          - unique
+      - name: user_name
+        description: "User's name."
+      - name: email
+        description: "User's email address."
+      - name: phone_number
+        description: "User's phone number."
+      - name: address
+        description: "User's address."
+      - name: birthdate
+        description: "User's birth date."
+      - name: registration_date
+        description: "User registration date."
+      - name: load_timestamp
+        description: "Record load timestamp."
+      - name: dbt_scd_id
+        description: "Unique surrogate key for SCD2 records."
+        tests:
+          - not_null
+          - unique
+      - name: hashdiff
+        description: "Hash digest of descriptive fields to detect changes."
+
+  - name: satellite_order
+    description: "Satellite capturing order attributes with SCD2 incremental loading."
+    columns:
+      - name: order_hkey
+        description: "Surrogate key linking to the order hub."
+        tests:
+          - not_null
+          - unique
+      - name: order_number
+        description: "Order number."
+      - name: order_dow
+        description: "Day of the week the order was placed."
+      - name: order_hour_of_day
+        description: "Hour of day when the order was placed."
+      - name: days_since_prior_order
+        description: "Days since the previous order."
+      - name: created_at
+        description: "Record creation timestamp."
+      - name: updated_at
+        description: "Record update timestamp."
+      - name: load_timestamp
+        description: "Record load timestamp."
+      - name: dbt_scd_id
+        description: "Unique surrogate key for SCD2 records."
+        tests:
+          - not_null
+          - unique
+      - name: hashdiff
+        description: "Hash digest of descriptive fields to detect changes."
+
+  - name: satellite_product
+    description: "Satellite capturing product attributes with SCD2 incremental loading."
+    columns:
+      - name: aisle_department_product_hkey
+        description: "Surrogate key linking to the aisle-department-product link."
+        tests:
+          - not_null
+          - unique
+      - name: product_name
+        description: "Name of the product."
+      - name: created_at
+        description: "Record creation timestamp."
+      - name: updated_at
+        description: "Record update timestamp."
+      - name: load_timestamp
+        description: "Record load timestamp."
+      - name: dbt_scd_id
+        description: "Unique surrogate key for SCD2 records."
+        tests:
+          - not_null
+          - unique
+      - name: hashdiff
+        description: "Hash digest of descriptive fields to detect changes."
+
+  - name: satellite_order_user_order_activity_stream
+    description: "Satellite capturing user order activity stream attributes with SCD2 incremental loading."
+    columns:
+      - name: order_product_hkey
+        description: "Surrogate key linking to the order product hub."
+        tests:
+          - not_null
+          - unique
+      - name: reordered
+        description: "Flag indicating if the product was reordered."
+      - name: add_to_cart_order
+        description: "Order in which the product was added to cart."
+      - name: created_at
+        description: "Record creation timestamp."
+      - name: updated_at
+        description: "Record update timestamp."
+      - name: load_timestamp
+        description: "Record load timestamp."
+      - name: dbt_scd_id
+        description: "Unique surrogate key for SCD2 records."
+        tests:
+          - not_null
+          - unique
+      - name: hashdiff
+        description: "Hash digest of descriptive fields to detect changes."

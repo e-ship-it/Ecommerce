@@ -1,0 +1,211 @@
+version: 2
+
+models:
+  - name: dim_user
+    description: >
+      Slowly Changing Dimension Type 2 (SCD2) for users.
+      Tracks user attributes like email, address, and phone over time
+      using surrogate key and valid_from / valid_to logic.
+    columns:
+      - name: dim_user_id
+        description: Surrogate key for the user dimension (auto-incremented).
+        tests:
+          - not_null
+          - unique
+
+      - name: user_hkey
+        description: Hash key from Data Vault model, uniquely identifies a user.
+        tests:
+          - not_null
+          - unique  # Only one active record per user_hkey at a time
+
+      - name: user_id
+        description: The user's id.
+
+      - name: user_name
+        description: The user's name.
+
+      - name: email
+        description: Email address of the user.
+
+      - name: phone_number
+        description: Contact number.
+
+      - name: address
+        description: Residential address of the user.
+
+      - name: birthdate
+        description: Birth date of the user.
+
+      - name: registration_date
+        description: When the user registered.
+
+      - name: valid_from
+        description: Timestamp when this version of the record became valid.
+        tests:
+          - not_null
+
+      - name: valid_to
+        description: Timestamp when this version of the record expired. Defaults to 9999-12-31 for active records.
+        tests:
+          - not_null
+
+  - name: dim_product
+    description: >
+      Slowly Changing Dimension Type 2 (SCD2) for product.
+      Tracks user attributes like product anme, aisle, and department over time
+      using surrogate key and valid_from / valid_to logic.
+    columns:
+
+      - name: DIM_PRODUCT_ID
+        description: Surrogate key for the user product (auto-incremented).
+        tests:
+          - not_null
+          - unique
+
+      - name: product_hkey
+        description: Hash key from Data Vault model, uniquely identifies a product.
+        tests:
+          - not_null
+          - unique  # Only one active record per user_hkey at a time
+
+      - name: product_id
+        description: The product's id.
+
+      - name: product_name
+        description: The product's name.
+
+      - name: aisle_id
+        description: aisle id for the product.
+
+      - name: aisle
+        description: aisle name for the product.
+
+      - name: department_id
+        description: department id for the product.
+
+      - name: department
+        description: department name for the product.
+
+      - name: created_at
+        description: When the record details was generated.
+
+      - name: updated_at
+        description: When the record details was updated.        
+
+      - name: valid_from
+        description: Timestamp when this version of the record became valid.
+        tests:
+          - not_null
+
+      - name: valid_to
+        description: Timestamp when this version of the record expired. Defaults to 9999-12-31 for active records.
+        tests:
+          - not_null
+
+  - name: fact_user_activity
+    description: "Tracks user activities including adding to cart, reordering, and removing from cart."
+    columns:
+      - name: fact_user_activity_hkey
+        description: "Surrogate key for the Fact User Activity table."
+        tests:
+          - unique
+          - not_null
+      - name: user_hkey
+        description: "Foreign key from the hub_users table representing the user."
+        tests:
+          - not_null
+      - name: order_hkey
+        description: "Foreign key from the link_order_user table representing the order."
+        tests:
+          - not_null
+      - name: add_to_cart_order
+        description: "Indicates the sequence in which a user added items to the cart."
+        tests:
+          - not_null
+      - name: add_to_cart_time
+        description: "Timestamp of when the user added items to the cart."
+        tests:
+          - not_null
+      - name: reordered
+        description: "Indicates if the item was reordered."
+        tests:
+          - not_null
+      - name: remove_from_cart_order
+        description: "Indicates the sequence in which a user removed items from the cart."
+        tests:
+          - not_null
+      - name: activity_type
+        description: "Type of user activity: add_to_cart, reorder, etc."
+        tests:
+          - not_null
+      - name: activity_timestamp
+        description: "Timestamp when the user activity was recorded."
+        tests:
+          - not_null
+      - name: load_timestamp
+        description: "Timestamp when the fact table record was loaded into the warehouse."
+        tests:
+          - not_null
+
+  - name: fact_order
+    description: "Aggregated order details such as total value, item count, and order timestamps."
+    columns:
+      - name: fact_order_hkey
+        description: "Surrogate key for the Fact Order table."
+        tests:
+          - unique
+          - not_null
+      - name: user_hkey
+        description: "Foreign key from the hub_users table representing the user who placed the order."
+        tests:
+          - not_null
+      - name: order_hkey
+        description: "Foreign key from the link_order_product table representing the order."
+        tests:
+          - not_null
+      - name: order_number
+        description: "Unique identifier for the order."
+        tests:
+          - not_null
+      - name: order_created_at
+        description: "Timestamp when the order was created."
+        tests:
+          - not_null
+      - name: order_dow
+        description: "Day of the week the order was placed."
+        tests:
+          - not_null
+      - name: order_hour_of_day
+        description: "Hour of the day the order was placed."
+        tests:
+          - not_null
+      - name: total_order_value
+        description: "Total value of the order, including product prices and taxes."
+        tests:
+          - not_null
+      - name: num_items_in_order
+        description: "Number of distinct products in the order."
+        tests:
+          - not_null
+      - name: days_since_prior_order
+        description: "Days since the user placed the previous order."
+        tests:
+          - not_null
+      - name: latest_order_timestamp
+        description: "Timestamp of the latest order."
+        tests:
+          - not_null
+      - name: load_timestamp
+        description: "Timestamp when the fact table record was loaded into the warehouse."
+        tests:
+          - not_null
+
+    # Optional: You can add tests for constraints like the uniqueness of order numbers or user activity keys.
+    tests:
+      - relationships:
+          to: ref('hub_users')
+          field: user_hkey
+      - relationships:
+          to: ref('link_order_product')
+          field: order_hkey          
