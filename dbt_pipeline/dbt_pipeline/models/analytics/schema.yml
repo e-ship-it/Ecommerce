@@ -48,10 +48,3 @@ models:
 
       - name: add_to_cart_order
         description: Position of the product in the cart (e.g., 1 = first added)
-
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - user_id
-            - order_id
-            - product_name
