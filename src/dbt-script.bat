@@ -21,4 +21,7 @@ if exist "%DBT_PROJECT_FILE%" (
     echo Initializing dbt project...
     dbt init dbt_pipeline
 )
-dbt init dbt_pipeline
+
+REM ==== To download the dbt_utils package into the dbt_packages directory and make its macros (like unique_combination_of_columns) available to use.===
+cd C:\Users\Ekta Sharma\Ekta\project\Ecommerce\dbt_pipeline\dbt_pipeline\
+dbt deps

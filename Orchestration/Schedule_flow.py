@@ -80,6 +80,16 @@ def run_dbt_analytics(logger,dbt_path):
         raise Exception("dbt analytics models run failed")
 
 @task
+def dbt_test(logger,dbt_path):
+    logger.info("Running dbt test ...")
+    cwd = os.path.join(project_dir, "dbt_pipeline", "dbt_pipeline")
+    result = subprocess.run([str(dbt_path), "test"], capture_output=True, text=True, cwd = cwd,shell=True)
+    logger.info(result.stdout)
+    if result.returncode != 0:
+        logger.error(result.stderr)
+        raise Exception("dbt test failed")
+
+@task
 def run_dbt_docs_generate(logger,dbt_path):
     logger.info("Running dbt docs generate...")
     cwd = os.path.join(project_dir, "dbt_pipeline", "dbt_pipeline")
@@ -87,7 +97,7 @@ def run_dbt_docs_generate(logger,dbt_path):
     logger.info(result.stdout)
     if result.returncode != 0:
         logger.error(result.stderr)
-        raise Exception("dbt dbt docs generate failed")
+        raise Exception("dbt docs generate failed")
 
 @task
 def run_dbt_docs_serve(logger,dbt_path):
@@ -97,7 +107,7 @@ def run_dbt_docs_serve(logger,dbt_path):
     logger.info(result.stdout)
     if result.returncode != 0:
         logger.error(result.stderr)
-        raise Exception("dbt dbt docs serve failed")              
+        raise Exception("dbt docs serve failed")              
 
 @flow
 def my_pipeline():
@@ -120,8 +130,9 @@ def my_pipeline():
     run_dbt_staging(logger,dbt_path)
     run_dbt_operation_hub(logger,dbt_path)
     run_dbt_analytics(logger,dbt_path)
+    dbt_test(logger,dbt_path)
     run_dbt_docs_generate(logger,dbt_path)
-    run_dbt_docs_serve(logger,dbt_path)
+    #run_dbt_docs_serve(logger,dbt_path)
     logger.info("Job finished.")
     for handler in logger.handlers:
         handler.flush()
