@@ -11,8 +11,11 @@ src/kaggle.json
 src/recover_blobs.sh
 pyvenv.cfg
 postgres-details.sql
+report.html
 
 
 # Ignore compiled Python files
 __pycache__/
 *.pyc
+.pytest_cache
+assets
